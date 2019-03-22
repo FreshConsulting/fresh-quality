@@ -21,18 +21,22 @@ Also attached to this solution is the `ExampleTests` has a set of tests which pr
 ## Getting Started
 
 After an MS Test project is created: 
-1. A reference to the project to be tested should be added.
-2. Make the test class inherit from TestBase.  TestBase takes 2 generic parameters: 
-  *  The base class to scan project references for.  A common scenario would be `ControllerBase` to get all MVC controllers.
-  *  The typeof the test class.  In the `ExampleTests`, the class `ControllerTests` would pass in `ControllerTests`.  
-  So in the `ExampleTests` scenario, the class declaration for `ControllerTests` looks like:  
-        
+
+  1) A reference to the project to be tested should be added.
+  
+  2) Make the test class inherit from TestBase.  TestBase takes 2 generic parameters: 
+    -  The base class to scan project references for.  A common scenario would be `ControllerBase` to get all MVC controllers.
+    -  The typeof the test class.  In the `ExampleTests`, the class `ControllerTests` would pass in `ControllerTests`.  
+    So in the `ExampleTests` scenario, the class declaration for `ControllerTests` looks like:  
+
+
 ```Java
 [TestClass]
 public class ControllerTests : TestBase<ControllerBase, ControllerTests>
 ```
-        
-    3.  Add an override method for `ServiceInitializer` that registers any services required for the types that will be tested.   A good starting place would the services that are added in the Startup.cs of a MVC project.  In the `ExampleTests`, the `ServiceInitializer` was implemented as follows:
+
+
+  3) Add an override method for `ServiceInitializer` that registers any services required for the types that will be tested.   A good starting place would the services that are added in the Startup.cs of a MVC project.  In the `ExampleTests`, the `ServiceInitializer` was implemented as follows:
 
 ```Java
 protected override void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces)
@@ -42,8 +46,9 @@ protected override void ServiceInitializer(ServiceCollection services, HashSet<T
   services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 }
 ```
-    
-    4. Create tests as needed, and use the `Get<S>` method to get instances that `TestBase` has retrieved.  In the `ControllerTests` example, the type `T` is `ControllerBase`, so `S` can be any type that inherits from `ControllerBase`.  In the `ControllerTests.cs` a simple tests that gets the controller is included below:
+
+
+  4) Create tests as needed, and use the `Get<S>` method to get instances that `TestBase` has retrieved.  In the `ControllerTests` example, the type `T` is `ControllerBase`, so `S` can be any type that inherits from `ControllerBase`.  In the `ControllerTests.cs` a simple tests that gets the controller is included below:
     
 ```Java
 [TestMethod]
