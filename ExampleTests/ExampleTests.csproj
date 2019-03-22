@@ -26,15 +26,4 @@
     <ProjectReference Include="..\FreshQuality\FreshQuality.csproj" />
     <ProjectReference Include="..\ExampleProject\ExampleProject.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.AspNetCore.Mvc.Core">
-      <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.core\2.1.1\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Collections">
-      <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.1.0\ref\netcoreapp2.1\System.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection">
-      <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.dependencyinjection\2.1.1\lib\netcoreapp2.0\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>
