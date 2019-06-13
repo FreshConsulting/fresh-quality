@@ -1,6 +1,6 @@
 ﻿/*
 FreshQuality is a tool that will:
-a) analyze the attached libraries/projects of a test project, 
+a) analyze the attached libraries/projects of a test project,
 b) create instances of pertinent classes (via dependency injection), [INITIALLY ONLY CONTROLLERS]
 c) expose them for use in unit tests.
 
@@ -13,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace FreshQuality
 {
-    public class FreshQualityHostinEnvironment : IHostingEnvironment
+    public class FreshQualityHostingEnvironment : IHostingEnvironment
     {
         public string EnvironmentName { get; set; }
         public string ApplicationName { get; set; }

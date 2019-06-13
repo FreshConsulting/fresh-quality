@@ -1,6 +1,6 @@
 ﻿/*
 FreshQuality is a tool that will:
-a) analyze the attached libraries/projects of a test project, 
+a) analyze the attached libraries/projects of a test project,
 b) create instances of pertinent classes (via dependency injection), [INITIALLY ONLY CONTROLLERS]
 c) expose them for use in unit tests.
 
@@ -126,7 +126,7 @@ namespace FreshQuality
         {
             var availableConstructors = new List<ConstructorInfo>(type.GetConstructors());
             availableConstructors.Sort((x, y) => x.GetParameters().Length.CompareTo(y.GetParameters().Length));
-            //We'll go w/ the first one we can instantiate, if possible.  
+            //We'll go w/ the first one we can instantiate, if possible.
             foreach (var ctor in availableConstructors)
             {
                 var parameters = new List<object>();
@@ -187,13 +187,14 @@ namespace FreshQuality
         }
 
         /// <summary>
-        /// Initializes the ServiceCollection with common services. Also some basic configuration setup. 
+        /// Initializes the ServiceCollection with common services. Also some basic configuration setup.
         /// </summary>
+
         private void PrepareServices()
         {
             var services = new ServiceCollection();
             services.AddSingleton<IServiceCollection, ServiceCollection>((isp) => services);
-            services.AddSingleton<IHostingEnvironment, FreshQualityHostinEnvironment>();
+            services.AddSingleton<IHostingEnvironment, FreshQualityHostingEnvironment>();
             services.AddScoped<IContainer, Container>();
             //services.AddScoped<IServiceProvider,>
             services.AddScoped<ILoggerFactory, LoggerFactory>();
@@ -244,7 +245,7 @@ namespace FreshQuality
         private bool processingNeededInterfaces = false;
 
         /// <summary>
-        /// Examines the types of each implementing constructor, 
+        /// Examines the types of each implementing constructor,
         /// and see which ones have already been defined in the service collection
         /// </summary>
         private void DetermineNeededInterfaces(ServiceCollection services)
@@ -311,7 +312,7 @@ namespace FreshQuality
         }
 
         /// <summary>
-        /// Determines which types from all the assemblies match 
+        /// Determines which types from all the assemblies match
         /// </summary>
         private void PopulateMatchingTypesList(List<string> namespaceIgnoreList)
         {

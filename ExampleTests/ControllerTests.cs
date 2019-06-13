@@ -26,6 +26,7 @@ namespace ExampleTests
         {
             //Note this DB context matches the one in Startup, it doesn't have to so long as 
             //it is a valid context compatible with the code to be tested.
+
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 
         }
