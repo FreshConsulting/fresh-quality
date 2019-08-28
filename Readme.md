@@ -34,7 +34,7 @@ After an MS Test project is created:
     So in the `ExampleTests` scenario, the class declaration for `ControllerTests` looks like:  
 
 
-```Java
+```csharp
 [TestClass]
 public class ControllerTests : TestBase<ControllerBase, ControllerTests>
 ```
@@ -42,7 +42,7 @@ public class ControllerTests : TestBase<ControllerBase, ControllerTests>
 
   3) Add an override method for `ServiceInitializer` that registers any services required for the types that will be tested.   A good starting place would the services that are added in the Startup.cs of a MVC project.  In the `ExampleTests`, the `ServiceInitializer` was implemented as follows:
 
-```Java
+```csharp
 protected override void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces)
 {
   //Note this DB context matches the one in Startup, it doesn't have to so long as 
@@ -54,7 +54,7 @@ protected override void ServiceInitializer(ServiceCollection services, HashSet<T
 
   4) Create tests as needed, and use the `Get<S>` method to get instances that `TestBase` has retrieved.  In the `ControllerTests` example, the type `T` is `ControllerBase`, so `S` can be any type that inherits from `ControllerBase`.  In the `ControllerTests.cs` a simple tests that gets the controller is included below:
     
-```Java
+```csharp
 [TestMethod]
 public async Task GetTodoItemsResultsList()
 {
