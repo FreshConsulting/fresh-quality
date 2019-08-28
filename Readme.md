@@ -2,6 +2,10 @@
 
 The FreshQuality project provides testing tools for projects in .Net Standard 2.0 or later.  Most notably the TestBase provides a mechanism for testing classes that are instantiated using IOC, a common scenario being Controllers from a MVC project.
 
+## License
+
+ * [BSD-3 Clause](license.txt)
+
 ## Minimum Requirements
 
 * .Net Standard 2.0 
@@ -64,4 +68,5 @@ public async Task GetTodoItemsResultsList()
 }
 ```
  
+[Side by Side Comparison](side_by_side.md)
     

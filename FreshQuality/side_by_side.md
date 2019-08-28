@@ -1,0 +1,1 @@
+﻿_Todo Make Side by Side between Fresh Quality and vanilla versions_

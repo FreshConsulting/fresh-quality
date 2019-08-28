@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>FreshQuality_fresh_consulting</PackageId>
+    <Authors>Sean McKay</Authors>
+    <Copyright>Fresh Consulting LLC</Copyright>
+    <PackageLicenseUrl>BSD</PackageLicenseUrl>
+    <Summary>The FreshQuality project provides testing tools for projects in .Net Standard 2.0 or later.  Most notably the TestBase provides a mechanism for testing classes that are instantiated using IOC, a common scenario being Controllers from a MVC project.
+</Summary>
+    <PackageTags>dotnet-standard2.0 ioc automated-testing unit-testing</PackageTags>
+    <Title>Fresh Quality</Title>
+    <Description>The FreshQuality project provides testing tools for projects in .Net Standard 2.0 or later.  Most notably the TestBase provides a mechanism for testing classes that are instantiated using IOC, a common scenario being Controllers from a MVC project.
+</Description>
+    <PackOnBuild>true</PackOnBuild>
+    <DevelopmentDependency>true</DevelopmentDependency>
   </PropertyGroup>
 
   <ItemGroup>
