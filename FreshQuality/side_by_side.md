@@ -1,6 +1,8 @@
-﻿_Todo Make Side by Side between Fresh Quality and vanilla versions_
-
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+﻿
+<script 
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" 
+    type="text/javascript">
+</script>
 <table border="0">
     <caption>Comparing automated testing with and without Fresh Quality</caption>
     <tr>
