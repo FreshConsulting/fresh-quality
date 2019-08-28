@@ -1,85 +1,127 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+﻿// <copyright file="TestBase.cs" company="Fresh Consulting LLC">2019</copyright>
 namespace FreshQuality
 {
-    [TestClass]
-    public abstract class TestBase<T, SubclassType>
-    {
-        QualityFacillitator<T> facillitator = null;
-        volatile List<Exception> ErrorsEncountered = null;
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    /// <summary>
+    /// Base Class that initializes the IOC necessary for the test.
+    /// </summary>
+    /// <typeparam name="T">The class to provide IOC for</typeparam>
+    /// <typeparam name="TSubclassType">The testing class that inherits from TestBase</typeparam>
+    [TestClass]
+    public abstract class TestBase<T, TSubclassType>
+    {
+        /// <summary>
+        /// Private instance of the underlying mechanism that parses the DLLs for the desired type.
+        /// </summary>
+        private QualityFacillitator<T> facillitator = null;
+
+        /// <summary>
+        /// List of issues encountered by the facillitator.
+        /// </summary>
+        private volatile List<Exception> errorsEncountered = null;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestBase{T,TSubclassType}"/> class.
+        /// </summary>
         public TestBase()
         {
-            facillitator = new QualityFacillitator<T>(typeof(SubclassType));
+            this.facillitator = new QualityFacillitator<T>(typeof(TSubclassType));
 
             try
             {
-                facillitator.ServiceInitializerMethod = ServiceInitializerWrapper;
-                facillitator.SetupConfigurationMethod = SetupConfiguration;
+                this.facillitator.ServiceInitializerMethod = this.ServiceInitializerWrapper;
+                this.facillitator.SetupConfigurationMethod = this.SetupConfiguration;
 
-                if (facillitator.InitializationError == null)
+                if (this.facillitator.InitializationError == null)
                 {
-                    facillitator.InitializeServices();
+                    this.facillitator.InitializeServices();
                 }
                 else
                 {
-                    LogErrorOccurred(facillitator.InitializationError);
+                    this.LogErrorOccurred(this.facillitator.InitializationError);
                 }
             }
             catch (Exception ex)
             {
-                LogErrorOccurred(ex);
+                this.LogErrorOccurred(ex);
             }
-
         }
 
-        private void LogErrorOccurred(Exception ex)
+        /// <summary>
+        /// This is a sentinel that prevents the unit tests from running if there were errors
+        /// initializing the IOC environment.
+        /// </summary>
+        [TestInitialize]
+        public void PrepareTests()
         {
-            if (ErrorsEncountered == null)
+            // This reveals if any missing references exist
+            if (this.errorsEncountered != null && this.errorsEncountered.Count > 0)
             {
-                ErrorsEncountered = new List<Exception>();
+                throw new AggregateException("Errors occurred in preparing tests", this.errorsEncountered);
             }
-            ErrorsEncountered.Add(ex);
         }
 
-        private void ServiceInitializerWrapper(ServiceCollection services, HashSet<Type> neededInterfaces)
+        /// <summary>
+        /// This method allows for easy retrieval of "T".
+        /// </summary>
+        /// <typeparam name="S">Desired type</typeparam>
+        /// <returns>An instance of the desired type</returns>
+        public S Get<S>()
+            where S : T
         {
-            try
-            {
-                ServiceInitializer(services, neededInterfaces);
-            }
-            catch(Exception ex)
-            {
-                LogErrorOccurred(ex);
-            }
-
+            return this.facillitator.Get<S>();
         }
 
+        /// <summary>
+        /// Overridable mechanism for setting up services.
+        /// </summary>
+        /// <param name="services">Services to initialize</param>
+        /// <param name="neededInterfaces">Interfaces there were found to be missing.</param>
         protected abstract void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces);
 
+        /// <summary>
+        /// Sets up the IConfiguration object.
+        /// </summary>
+        /// <returns>An instance of IConfiguration, override if null is not desired.</returns>
         protected virtual IConfiguration SetupConfiguration()
         {
             return null;
         }
 
-        [TestInitialize]
-        public void PrepareTests()
+        /// <summary>
+        /// Adds the exception to the list of exceptions encountered.
+        /// </summary>
+        /// <param name="ex">The exception to log</param>
+        private void LogErrorOccurred(Exception ex)
         {
-            //This reveals if any missing references exist
-            if (ErrorsEncountered != null && ErrorsEncountered.Count > 0)
+            if (this.errorsEncountered == null)
             {
-                throw new AggregateException("Errors occurred in preparing tests", ErrorsEncountered);
+                this.errorsEncountered = new List<Exception>();
             }
+
+            this.errorsEncountered.Add(ex);
         }
 
-
-        public S Get<S>() where S:T
+        /// <summary>
+        /// Wraps the ServiceInitializer method with error handling.
+        /// </summary>
+        /// <param name="services">Services to initialize</param>
+        /// <param name="neededInterfaces">Any missing interfaces found</param>
+        private void ServiceInitializerWrapper(ServiceCollection services, HashSet<Type> neededInterfaces)
         {
-            return facillitator.Get<S>();
+            try
+            {
+                this.ServiceInitializer(services, neededInterfaces);
+            }
+            catch (Exception ex)
+            {
+                this.LogErrorOccurred(ex);
+            }
         }
     }
 }

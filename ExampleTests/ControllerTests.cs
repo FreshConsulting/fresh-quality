@@ -1,42 +1,39 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FreshQuality;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using ExampleProject.Controllers;
-using System.Runtime.CompilerServices;
-using ExampleProject.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
+// <summary>
+// FreshQuality is a tool that will:
+// a) analyze the attached libraries/projects of a test project,
+// b) create instances of pertinent classes(via dependency injection), initially only controllers, but this was extended.
+// c) expose them for use in unit tests.
+//
+// The ability to how the dependency injection works allow for testing the classes
+// in a disconnect manner.
+// </summary>
+// <copyright file="ControllerTests.cs" company="Fresh Consulting LLC">2019</copyright>
 
 namespace ExampleTests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using ExampleProject.Controllers;
+    using ExampleProject.Models;
+    using FreshQuality;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    /// <summary>
+    /// Provides a simple example of unit tests for the Todo Controller using
+    /// FreshQuality's TestBase for IOC.
+    /// </summary>
     [TestClass]
     public class ControllerTests : TestBase<ControllerBase, ControllerTests>
     {
-        public ControllerTests():base()
-        {
-        }
-
-
-        protected override void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces)
-        {
-            //Note this DB context matches the one in Startup, it doesn't have to so long as 
-            //it is a valid context compatible with the code to be tested.
-            services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
-
-        }
-
-        protected override IConfiguration SetupConfiguration()
-        {
-            //If the base result is used, then the default config is setup.
-            return base.SetupConfiguration();   
-        }
-
-
+        /// <summary>
+        /// Tests the Get method of TestBase is working
+        /// </summary>
         [TestMethod]
         public void GetActuallyReturnsAnInstance()
         {
@@ -46,6 +43,10 @@ namespace ExampleTests
             Assert.IsInstanceOfType(ctrllr, typeof(TodoController));
         }
 
+        /// <summary>
+        /// Tests todo item retrieval
+        /// </summary>
+        /// <returns>nothing to return</returns>
         [TestMethod]
         public async Task GetTodoItemsResultsList()
         {
@@ -58,6 +59,10 @@ namespace ExampleTests
             Assert.IsTrue(todoEnumerable.Any());
         }
 
+        /// <summary>
+        /// Tests adding todo items works
+        /// </summary>
+        /// <returns>nothing to return</returns>
         [TestMethod]
         public async Task AddTodoItemAddsToList()
         {
@@ -72,6 +77,10 @@ namespace ExampleTests
             Assert.AreEqual(currentTodoCount + 1, updatedTodoCount);
         }
 
+        /// <summary>
+        /// Tests the deletion of todo items works.
+        /// </summary>
+        /// <returns>nothing to return</returns>
         [TestMethod]
         public async Task DeleteTodoItemRemovesEntry()
         {
@@ -85,6 +94,10 @@ namespace ExampleTests
             Assert.AreEqual(currentTodoCount - 1, updatedTodoCount);
         }
 
+        /// <summary>
+        /// Tests the item retrieval feature.
+        /// </summary>
+        /// <returns>nothing to return</returns>
         [TestMethod]
         public async Task GetItemRetrievesEntry()
         {
@@ -96,18 +109,26 @@ namespace ExampleTests
             Assert.AreEqual(last.Id, item.Value.Id);
         }
 
-        [TestMethod]
-        public async Task PutUpdatesItem()
+        /// <summary>
+        /// Initializes the Services.
+        /// </summary>
+        /// <param name="services">Services collection</param>
+        /// <param name="neededInterfaces">Interfaces needed for proper initialization</param>
+        protected override void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces)
         {
-            var ctrllr = Get<TodoController>();
-            var last = (await ctrllr.GetTodoItems()).Value.Last();
+            // Note this DB context matches the one in Startup, it doesn't have to so long as 
+            // it is a valid context compatible with the code to be tested.
+            services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
+        }
 
-            last.Name = "Altered Name";
-            var result = await ctrllr.PutTodoItem(last.Id, last);
-
-            var updated = await ctrllr.GetTodoItem(last.Id);
-
-            Assert.AreEqual(last.Name, updated.Value.Name);
+        /// <summary>
+        /// Sets up the configuration
+        /// </summary>
+        /// <returns>the configuration</returns>
+        protected override IConfiguration SetupConfiguration()
+        {
+            // If the base result is used, then the default config is setup.
+            return base.SetupConfiguration();   
         }
     }
 }
