@@ -4,7 +4,7 @@ The FreshQuality project provides testing tools for projects in .Net Standard 2.
 
 ## License
 
- * [BSD-3 Clause](license.txt)
+ * [BSD-3 Clause](FreshQuality/license.txt)
 
 ## Minimum Requirements
 
@@ -68,5 +68,5 @@ public async Task GetTodoItemsResultsList()
 }
 ```
  
-[Side by Side Comparison](side_by_side.md)
+[Side by Side Comparison](FreshQuality/side_by_side.md)
     
