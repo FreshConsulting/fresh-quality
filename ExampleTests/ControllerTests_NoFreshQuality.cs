@@ -52,7 +52,8 @@ namespace ExampleTests
             if (this.todoContext != null)
             {
                 //Initialization already done.  Note: ClassInitialize isn't used
-                //Due to requiring the TodoContext properties.
+                //Due to requiring the TodoContext properties and making the comparisons
+                //Between w/ and w/o FreshQuality less clear.
                 return;
             }
 
@@ -64,10 +65,6 @@ namespace ExampleTests
             this.todoContext = new TodoContext(optionsBuilder.Options);
 
             //Setup the TODO Controller
-            var env = new HostingEnvironment();
-            env.ContentRootPath = Directory.GetCurrentDirectory();
-            env.EnvironmentName = "Development";
-
             var configuration = new ConfigurationBuilder().Build();
 
             var startup = new Startup(configuration);

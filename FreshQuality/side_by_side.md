@@ -45,10 +45,6 @@
                 this.todoContext = new TodoContext(optionsBuilder.Options);
 
                 //Setup the TODO Controller
-                var env = new HostingEnvironment();
-                env.ContentRootPath = Directory.GetCurrentDirectory();
-                env.EnvironmentName = "Development";
-
                 var configuration = new ConfigurationBuilder().Build();
 
                 var startup = new Startup(configuration);
