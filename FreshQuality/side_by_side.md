@@ -3,6 +3,8 @@
     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" 
     type="text/javascript">
 </script>
+
+
 <table border="0">
     <caption>Comparing automated testing with and without Fresh Quality</caption>
     <tr>
@@ -11,9 +13,54 @@
         <th>With Fresh Quality</th>
     </tr>
     <tr>
-        <td>Test Class Initialize</td>
+        <td>Test Setup</td>
         <td>
+        ```csharp
+            /// <summary>
+            /// An instance of the TodoController
+            /// </summary>
+            private TodoController todoController = null;
 
+            /// <summary>
+            /// An instance of the DB context
+            /// </summary>
+            private TodoContext todoContext = null;
+
+
+            [TestInitialize]
+            public void InitTestEnvironment()
+            {
+                if (this.todoContext != null)
+                {
+                    //Initialization already done.  Note: ClassInitialize isn't used
+                    //Due to requiring the TodoContext properties.
+                    return;
+                }
+
+                //Setup the TODO Db Context
+
+                var optionsBuilder = new DbContextOptionsBuilder<TodoContext>();
+                optionsBuilder.UseInMemoryDatabase("TodoList");
+                
+                this.todoContext = new TodoContext(optionsBuilder.Options);
+
+                //Setup the TODO Controller
+                var env = new HostingEnvironment();
+                env.ContentRootPath = Directory.GetCurrentDirectory();
+                env.EnvironmentName = "Development";
+
+                var configuration = new ConfigurationBuilder().Build();
+
+                var startup = new Startup(configuration);
+                var sc = new ServiceCollection();
+
+                startup.ConfigureServices(sc);
+                var serviceProvider = sc.BuildServiceProvider();
+
+                this.todoController = new TodoController(this.todoContext, serviceProvider, configuration);
+
+            }
+        ```
         </td>
         <td>
             ```csharp
@@ -32,6 +79,12 @@
     </tr>
     <tr>
         <td>Test Setup and Helpers</td>
+        ```csharp
+            public TodoController GetTodoController()
+            {
+                return this.todoController;
+            }
+        ```
         <td>
         </td>
         <td>
@@ -40,6 +93,19 @@
     <tr>
         <td>Automated Test</td>
         <td>
+            ```csharp
+            [TestMethod]
+            public async Task GetTodoItemsResultsList()
+            {
+              var ctrllr = GetTodoController();
+              
+              var result = await ctrllr.GetTodoItems();
+              var todoEnumerable = result.Value;
+              
+              Assert.IsNotNull(todoEnumerable);
+              Assert.IsTrue(todoEnumerable.Any());
+            }
+            ```
         </td>
         <td>
             ```csharp
