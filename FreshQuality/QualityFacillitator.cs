@@ -204,19 +204,6 @@ namespace FreshQuality
         private S InstantiateType<S>(Type type)
             where S : T
         {
-            // We could go crazier in this code
-            // but it would make it harder to understand
-            // so I opted out of this. But it would be something like:
-//            return (S)type.GetConstructors()
-//                .OrderBy(c => c.GetParameters().Length)
-//                .Select(ctor =>
-//                    ctor.Invoke(
-//                        ctor.GetParameters().Select(parameter =>
-//                            ServiceProvider.GetService(
-//                                parameter.ParameterType)
-//                            ?? throw new MissingServiceException(parameter.ParameterType.FullName))
-//                            .ToArray()))
-//                .FirstOrDefault();
 
             var availableConstructors = type.GetConstructors()
                 .OrderBy(c => c.GetParameters().Length).ToList();
