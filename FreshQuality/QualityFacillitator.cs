@@ -110,13 +110,20 @@ namespace FreshQuality
             where S : T
         {
             string name = typeof(S).FullName;
-            var candidates = this.MatchingTypes.Where(t => t.FullName.StartsWith(name, StringComparison.Ordinal));
-            if (candidates == null || !candidates.Any())
+
+            // ToList here to avoid multiple enumerations.
+            // Without ToList, every .Any or .First or .Count
+            // will go through the enumeration from the beginning.
+            var candidates = this.MatchingTypes
+                .Where(t => t.FullName.StartsWith(name, StringComparison.Ordinal))
+                .ToList();
+
+            if (!candidates.Any())
             {
-                return default(S);
+                return default;
             }
 
-            if (candidates.Count() == 1)
+            if (candidates.Count == 1)
             {
                 // Happy path: no ambiguity
                 var type = candidates.First();
@@ -124,10 +131,11 @@ namespace FreshQuality
             }
             else
             {
-                List<Type> sortedCandidates = new List<Type>(candidates);
-                sortedCandidates.Sort((x, y) => x.FullName.Replace(name, string.Empty)
-                                    .Length.CompareTo(y.FullName.Replace(name, string.Empty).Length));
-                var type = sortedCandidates.First();
+                // System.Linq FTW
+                var type = candidates
+                    .OrderBy(c => c.FullName.Replace(name, string.Empty))
+                    .First();
+
                 return this.InstantiateType<S>(type);
             }
         }
@@ -147,11 +155,14 @@ namespace FreshQuality
         /// <param name="services">Services to configure.</param>
         /// <param name="neededInterfaces">Needed interfaces.</param>
         /// <param name="isOverridden">If set to <c>true</c> is overridden.</param>
-        protected virtual void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces, bool isOverridden = false)
+        protected virtual void ServiceInitializer(
+            ServiceCollection services, HashSet<Type> neededInterfaces, bool isOverridden = false)
         {
-            if (!isOverridden && this.ServiceInitializerMethod == null && (neededInterfaces == null || neededInterfaces.Count == 0))
+            if (!isOverridden && this.ServiceInitializerMethod == null &&
+                (neededInterfaces == null || neededInterfaces.Count == 0))
             {
-                throw new NullReferenceException($"The `ServiceInitializerMethod` method has not been set on the QualityFacilitator.");
+                throw new NullReferenceException(
+                    $"The `ServiceInitializerMethod` method has not been set on the QualityFacilitator.");
             }
 
             // This can be simplified, but I'd prefer the check to be explicit/separate.
@@ -193,31 +204,41 @@ namespace FreshQuality
         private S InstantiateType<S>(Type type)
             where S : T
         {
-            var availableConstructors = new List<ConstructorInfo>(type.GetConstructors());
-            availableConstructors.Sort((x, y) => x.GetParameters().Length.CompareTo(y.GetParameters().Length));
+            // We could go crazier in this code
+            // but it would make it harder to understand
+            // so I opted out of this. But it would be something like:
+//            return (S)type.GetConstructors()
+//                .OrderBy(c => c.GetParameters().Length)
+//                .Select(ctor =>
+//                    ctor.Invoke(
+//                        ctor.GetParameters().Select(parameter =>
+//                            ServiceProvider.GetService(
+//                                parameter.ParameterType)
+//                            ?? throw new MissingServiceException(parameter.ParameterType.FullName))
+//                            .ToArray()))
+//                .FirstOrDefault();
+
+            var availableConstructors = type.GetConstructors()
+                .OrderBy(c => c.GetParameters().Length).ToList();
 
             // We'll go w/ the first one we can instantiate, if possible.
             foreach (var ctor in availableConstructors)
             {
-                var parameters = new List<object>();
-                foreach (var parameter in ctor.GetParameters())
-                {
-                    var obj = ServiceProvider.GetService(parameter.ParameterType);
-                    if (obj == null)
-                    {
-                        throw new MissingServiceException(parameter.ParameterType.FullName);
-                    }
+                // This is more a suggestion, the foreach was good too.
+                var parameters = ctor.GetParameters()
+                    .Select(parameter =>
+                        ServiceProvider.GetService(parameter.ParameterType)
+                        ?? throw new MissingServiceException(parameter.ParameterType.FullName))
+                    .ToArray();
 
-                    parameters.Add(obj);
-                }
-
-                return (S)ctor.Invoke(parameters.ToArray());
+                return (S)ctor.Invoke(parameters);
             }
 
             // If we got here, couldn't find a match
             throw new TypeInitializationException(
                 type.FullName,
-                new MissingFieldException("Unable to initialize the type, because some of the dependencies were not setup."));
+                new MissingFieldException(
+                    "Unable to initialize the type, because some of the dependencies were not setup."));
         }
 
         /// <summary>
@@ -235,8 +256,7 @@ namespace FreshQuality
                     var parameters = constructor.GetParameters();
                     foreach (var parameter in parameters)
                     {
-                        List<ConstructorInfo> constructors = null;
-                        if (!this.neededTypesToConstructors.TryGetValue(parameter.ParameterType, out constructors))
+                        if (!this.neededTypesToConstructors.TryGetValue(parameter.ParameterType, out var constructors))
                         {
                             constructors = new List<ConstructorInfo>();
                             this.neededTypesToConstructors[parameter.ParameterType] = constructors;
@@ -278,13 +298,15 @@ namespace FreshQuality
                 instance = this.SetupConfigurationMethod();
             }
 
-            if (instance != null)
+            // Personal preference: If Not, Else makes it hard to understand the code
+            // I prefer to have to true statement in the beginning
+            if (instance == null)
             {
-                services.AddSingleton<IConfiguration>(instance);
+                DefaultSetupConfiguration(services);
             }
             else
             {
-                DefaultSetupConfiguration(services);
+                services.AddSingleton<IConfiguration>(instance);
             }
         }
 
@@ -307,17 +329,7 @@ namespace FreshQuality
                 var workingNeededInterfaces = new HashSet<Type>();
                 foreach (var neededType in this.neededTypesToConstructors.Keys)
                 {
-                    bool found = false;
-                    foreach (var service in services)
-                    {
-                        if (service.ServiceType == neededType)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found)
+                    if (!services.Any(s => s.ServiceType == neededType))
                     {
                         workingNeededInterfaces.Add(neededType);
                     }
