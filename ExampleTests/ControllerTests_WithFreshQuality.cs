@@ -7,7 +7,7 @@
 // The ability to how the dependency injection works allow for testing the classes
 // in a disconnect manner.
 // </summary>
-// <copyright file="ControllerTests.cs" company="Fresh Consulting LLC">2019</copyright>
+// <copyright file="ControllerTests_WithFreshQuality.cs" company="Fresh Consulting LLC">2019</copyright>
 
 namespace ExampleTests
 {
@@ -29,7 +29,7 @@ namespace ExampleTests
     /// FreshQuality's TestBase for IOC.
     /// </summary>
     [TestClass]
-    public class ControllerTests : TestBase<ControllerBase, ControllerTests>
+    public class ControllerTests_WithFreshQuality : TestBase<ControllerBase, ControllerTests_WithFreshQuality>
     {
         /// <summary>
         /// Tests the Get method of TestBase is working

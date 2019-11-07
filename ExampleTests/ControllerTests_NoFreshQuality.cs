@@ -7,21 +7,15 @@
 // The ability to how the dependency injection works allow for testing the classes
 // in a disconnect manner.
 // </summary>
-// <copyright file="ControllerTests.cs" company="Fresh Consulting LLC">2019</copyright>
+// <copyright file="ControllerTests_NoFreshQuality.cs" company="Fresh Consulting LLC">2019</copyright>
 
 namespace ExampleTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using ExampleProject;
     using ExampleProject.Controllers;
     using ExampleProject.Models;
-    using FreshQuality;
-    using Microsoft.AspNetCore.Hosting.Internal;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +26,7 @@ namespace ExampleTests
     /// using the FreshQuality tool.
     /// </summary>
     [TestClass]
-    public class ControllerTestsNoFreshQuality
+    public class ControllerTests_NoFreshQuality
     {
         #region Setup Methods
         /// <summary>
@@ -45,26 +39,27 @@ namespace ExampleTests
         /// </summary>
         private TodoContext todoContext = null;
 
-
+        /// <summary>
+        /// Initializes the test environment
+        /// </summary>
         [TestInitialize]
         public void InitTestEnvironment()
         {
             if (this.todoContext != null)
             {
-                //Initialization already done.  Note: ClassInitialize isn't used
-                //Due to requiring the TodoContext properties and making the comparisons
-                //Between w/ and w/o FreshQuality less clear.
+                // Initialization already done.  Note: ClassInitialize isn't used
+                // Due to requiring the TodoContext properties and making the comparisons
+                // Between w/ and w/o FreshQuality less clear.
                 return;
             }
 
-            //Setup the TODO Db Context
-
+            // Setup the TODO Db Context
             var optionsBuilder = new DbContextOptionsBuilder<TodoContext>();
             optionsBuilder.UseInMemoryDatabase("TodoList");
             
             this.todoContext = new TodoContext(optionsBuilder.Options);
 
-            //Setup the TODO Controller
+            // Setup the TODO Controller
             var configuration = new ConfigurationBuilder().Build();
 
             var startup = new Startup(configuration);
@@ -74,13 +69,15 @@ namespace ExampleTests
             var serviceProvider = sc.BuildServiceProvider();
 
             this.todoController = new TodoController(this.todoContext, serviceProvider, configuration);
-
         }
 
         #endregion
 
         #region Helper Methods
-
+        /// <summary>
+        /// Gets an instance of TodoController
+        /// </summary>
+        /// <returns>instance of TodoController</returns>
         public TodoController GetTodoController()
         {
             return this.todoController;
@@ -94,7 +91,7 @@ namespace ExampleTests
         [TestMethod]
         public void GetActuallyReturnsAnInstance()
         {
-            var ctrllr = GetTodoController();
+            var ctrllr = this.GetTodoController();
 
             Assert.IsNotNull(ctrllr);
             Assert.IsInstanceOfType(ctrllr, typeof(TodoController));
@@ -107,7 +104,7 @@ namespace ExampleTests
         [TestMethod]
         public async Task GetTodoItemsResultsList()
         {
-            var ctrllr = GetTodoController();
+            var ctrllr = this.GetTodoController();
 
             var result = await ctrllr.GetTodoItems();
             var todoEnumerable = result.Value;
@@ -123,7 +120,7 @@ namespace ExampleTests
         [TestMethod]
         public async Task AddTodoItemAddsToList()
         {
-            var ctrllr = GetTodoController();
+            var ctrllr = this.GetTodoController();
 
             int currentTodoCount = (await ctrllr.GetTodoItems()).Value.Count();
             string todoText = "Test Entry";
@@ -141,7 +138,7 @@ namespace ExampleTests
         [TestMethod]
         public async Task DeleteTodoItemRemovesEntry()
         {
-            var ctrllr = GetTodoController();
+            var ctrllr = this.GetTodoController();
 
             int currentTodoCount = (await ctrllr.GetTodoItems()).Value.Count();
             var result = await ctrllr.DeleteTodoItem(1);
@@ -158,13 +155,12 @@ namespace ExampleTests
         [TestMethod]
         public async Task GetItemRetrievesEntry()
         {
-            var ctrllr = GetTodoController();
+            var ctrllr = this.GetTodoController();
             var last = (await ctrllr.GetTodoItems()).Value.Last();
             var item = await ctrllr.GetTodoItem(last.Id);
 
             Assert.IsNotNull(item);
             Assert.AreEqual(last.Id, item.Value.Id);
         }
-
     }
 }
