@@ -1,10 +1,3 @@
-﻿
-<script 
-    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" 
-    type="text/javascript">
-</script>
-
-
 <table border="0">
     <caption>Comparing automated testing with and without Fresh Quality</caption>
     <tr>
