@@ -55,14 +55,13 @@
     </tr>
     <tr>
         <td>Test Setup and Helpers</td>
+        <td>
         <pre><code>
             public TodoController GetTodoController()
             {
                 return this.todoController;
             }
         </code></pre>
-        <td>
-        </td>
         <td>
         </td>
     </tr>
