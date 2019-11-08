@@ -1,13 +1,10 @@
-<table border="0">
-    <caption>Comparing automated testing with and without Fresh Quality</caption>
-    <tr>
-        <th>Automated Test Portion</th>
-        <th width="30%">Without Fresh Quality</th>
-        <th width="30%">With Fresh Quality</th>
-    </tr>
-    <tr>
-        <td>Test Setup</td>
-        <td><pre><code>
+# Comparing automated testing with and without Fresh Quality
+
+## Test Setup
+        
+### Without Fresh Quality
+
+```csharp
 /// <summary>
 /// An instance of the TodoController
 /// </summary>
@@ -37,10 +34,11 @@ public void InitTestEnvironment()
     var serviceProvider = sc.BuildServiceProvider();
     this.todoController = new TodoController(this.todoContext, serviceProvider, configuration);
 }
-        </code></pre>
-        </td>
-        <td>
-            ```csharp
+```
+
+### With Fresh Quality
+
+```csharp
 [TestClass]
 public class ControllerTests : TestBase<ControllerBase, ControllerTests>
 {
@@ -50,25 +48,25 @@ public class ControllerTests : TestBase<ControllerBase, ControllerTests>
       //it is a valid context compatible with the code to be tested.
       services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
     }
-            ```
-        </td>
-    </tr>
-    <tr>
-        <td>Test Setup and Helpers</td>
-        <td>
-        <pre><code>
+```
+
+## Test Setup and Helpers
+
+### Without Fresh Quality
+
+```csharp
 public TodoController GetTodoController()
 {
     return this.todoController;
 }
-        </code></pre>
-        <td>
-        </td>
-    </tr>
-    <tr>
-        <td>Automated Test</td>
-        <td>
-            <pre><code>
+```
+
+### With Fresh Quality
+
+## Automated Test
+
+### Without Fresh Quality
+```csharp
 [TestMethod]
 public async Task GetTodoItemsResultsList()
 {
@@ -78,10 +76,9 @@ public async Task GetTodoItemsResultsList()
   Assert.IsNotNull(todoEnumerable);
   Assert.IsTrue(todoEnumerable.Any());
 }
-            </code></pre>
-        </td>
-        <td>
-            <pre><code>
+```
+### With Fresh Quality
+```csharp
 [TestMethod]
 public async Task GetTodoItemsResultsList()
 {
@@ -91,7 +88,4 @@ public async Task GetTodoItemsResultsList()
   Assert.IsNotNull(todoEnumerable);
   Assert.IsTrue(todoEnumerable.Any());
 }
-            </code></pre>
-        </td>
-    </tr> 
-</table>
+```
