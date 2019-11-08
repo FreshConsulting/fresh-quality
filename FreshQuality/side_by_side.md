@@ -40,7 +40,7 @@ public void InitTestEnvironment()
         </code></pre>
         </td>
         <td>
-            <pre><code>
+            ```csharp
 [TestClass]
 public class ControllerTests : TestBase<ControllerBase, ControllerTests>
 {
@@ -50,7 +50,7 @@ public class ControllerTests : TestBase<ControllerBase, ControllerTests>
       //it is a valid context compatible with the code to be tested.
       services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
     }
-            </code></pre>
+            ```
         </td>
     </tr>
     <tr>
