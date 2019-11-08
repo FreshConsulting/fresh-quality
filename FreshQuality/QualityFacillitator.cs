@@ -106,7 +106,7 @@ namespace FreshQuality
         /// </summary>
         /// <typeparam name="S">The subtype to get</typeparam>
         /// <returns>Instance of type S.</returns>
-        public S Get<S>()
+        public S Get<S>(params object[] serviceOverrides)
             where S : T
         {
             string name = typeof(S).FullName;
@@ -127,7 +127,7 @@ namespace FreshQuality
             {
                 // Happy path: no ambiguity
                 var type = candidates.First();
-                return this.InstantiateType<S>(type);
+                return this.InstantiateType<S>(type, serviceOverrides);
             }
             else
             {
@@ -136,7 +136,7 @@ namespace FreshQuality
                     .OrderBy(c => c.FullName.Replace(name, string.Empty))
                     .First();
 
-                return this.InstantiateType<S>(type);
+                return this.InstantiateType<S>(type, serviceOverrides);
             }
         }
 

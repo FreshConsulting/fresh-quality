@@ -110,6 +110,30 @@ namespace ExampleTests
         }
 
         /// <summary>
+        /// Tests the overriding mechanism for the Get method
+        /// </summary>
+        /// <returns>nothing to return</returns>
+        [TestMethod]
+        public async Task OverrideIOCContextResultsInChanges()
+        {
+            // Setup the TODO Db Context
+            var optionsBuilder = new DbContextOptionsBuilder<TodoContext>();
+            optionsBuilder.UseInMemoryDatabase("TodoList");
+
+            var filledList = new TodoContext(optionsBuilder.Options);
+            
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = true, Name = "Make an override" });
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = false, Name = "Test the override" });
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = false, Name = "Document override" }) ;
+            filledList.Add<TodoItem>(new TodoItem() { IsComplete = true, Name = "Make test project" });
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = true, Name = "Run test project" });
+            filledList.SaveChanges();
+            var ctrllr = Get<TodoController>(filledList);
+            int itemCount = (await ctrllr.GetTodoItems()).Value.ToList().Count;
+            Assert.AreEqual(filledList.TodoItems.Count(), itemCount);
+        }
+
+        /// <summary>
         /// Initializes the Services.
         /// </summary>
         /// <param name="services">Services collection</param>

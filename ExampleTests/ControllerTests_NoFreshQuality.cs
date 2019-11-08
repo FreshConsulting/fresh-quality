@@ -35,9 +35,21 @@ namespace ExampleTests
         private TodoController todoController = null;
 
         /// <summary>
+        /// An instance of the TodoController with a diff context
+        /// </summary>
+        private TodoController todoControllerContext = null;
+
+
+        /// <summary>
         /// An instance of the DB context
         /// </summary>
         private TodoContext todoContext = null;
+
+        /// <summary>
+        /// An instance of the DB context
+        /// </summary>
+        private TodoContext altTodoContext = null;
+
 
         /// <summary>
         /// Initializes the test environment
@@ -58,6 +70,7 @@ namespace ExampleTests
             optionsBuilder.UseInMemoryDatabase("TodoList");
             
             this.todoContext = new TodoContext(optionsBuilder.Options);
+            this.altTodoContext = new TodoContext(optionsBuilder.Options);
 
             // Setup the TODO Controller
             var configuration = new ConfigurationBuilder().Build();
@@ -69,6 +82,7 @@ namespace ExampleTests
             var serviceProvider = sc.BuildServiceProvider();
 
             this.todoController = new TodoController(this.todoContext, serviceProvider, configuration);
+            this.todoControllerContext = new TodoController(this.altTodoContext, serviceProvider, configuration);
         }
 
         #endregion
@@ -78,8 +92,12 @@ namespace ExampleTests
         /// Gets an instance of TodoController
         /// </summary>
         /// <returns>instance of TodoController</returns>
-        public TodoController GetTodoController()
+        public TodoController GetTodoController(bool useAlt = false)
         {
+            if (useAlt)
+            {
+                return this.todoControllerContext;
+            }
             return this.todoController;
         }
 
@@ -161,6 +179,26 @@ namespace ExampleTests
 
             Assert.IsNotNull(item);
             Assert.AreEqual(last.Id, item.Value.Id);
+        }
+
+        /// <summary>
+        /// Tests the overriding mechanism for the Get method
+        /// </summary>
+        /// <returns>nothing to return</returns>
+        [TestMethod]
+        public async Task OverrideIOCContextResultsInChanges()
+        {
+            // Setup the TODO Db Context
+            altTodoContext.RemoveRange(altTodoContext.TodoItems);
+            altTodoContext.Add<TodoItem>(new TodoItem() { Id = 1, IsComplete = true, Name = "Make an override" });
+            altTodoContext.Add<TodoItem>(new TodoItem() { Id = 2, IsComplete = false, Name = "Test the override" });
+            altTodoContext.Add<TodoItem>(new TodoItem() { Id = 3, IsComplete = false, Name = "Document override" });
+            altTodoContext.Add<TodoItem>(new TodoItem() { Id = 4, IsComplete = true, Name = "Make test project" });
+            altTodoContext.Add<TodoItem>(new TodoItem() { Id = 5, IsComplete = true, Name = "Run test project" });
+            altTodoContext.SaveChanges();
+            var ctrllr = this.GetTodoController(useAlt:true);
+            int itemCount = (await ctrllr.GetTodoItems()).Value.ToList().Count;
+            Assert.AreEqual(altTodoContext.TodoItems.Count(), itemCount);
         }
     }
 }
