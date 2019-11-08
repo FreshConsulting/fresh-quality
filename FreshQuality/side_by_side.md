@@ -44,7 +44,6 @@
             [TestClass]
             public class ControllerTests : TestBase<ControllerBase, ControllerTests>
             {
-
                 protected override void ServiceInitializer(ServiceCollection services, HashSet<Type> neededInterfaces)
                 {
                   //Note this DB context matches the one in Startup, it doesn't have to so long as 
@@ -74,11 +73,9 @@
             [TestMethod]
             public async Task GetTodoItemsResultsList()
             {
-              var ctrllr = GetTodoController();
-              
+              var ctrllr = GetTodoController(); 
               var result = await ctrllr.GetTodoItems();
               var todoEnumerable = result.Value;
-              
               Assert.IsNotNull(todoEnumerable);
               Assert.IsTrue(todoEnumerable.Any());
             }
@@ -90,10 +87,8 @@
             public async Task GetTodoItemsResultsList()
             {
               var ctrllr = Get<TodoController>();
-              
               var result = await ctrllr.GetTodoItems();
               var todoEnumerable = result.Value;
-              
               Assert.IsNotNull(todoEnumerable);
               Assert.IsTrue(todoEnumerable.Any());
             }
