@@ -7,8 +7,7 @@
     </tr>
     <tr>
         <td>Test Setup</td>
-        <td>
-        <pre>
+        <td><pre><code>
             /// <summary>
             /// An instance of the TodoController
             /// </summary>
@@ -49,7 +48,7 @@
                 this.todoController = new TodoController(this.todoContext, serviceProvider, configuration);
 
             }
-        </pre>
+        </code></pre>
         </td>
         <td>
             ```csharp
