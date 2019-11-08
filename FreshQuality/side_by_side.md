@@ -12,13 +12,10 @@
     /// An instance of the TodoController
     /// </summary>
     private TodoController todoController = null;
-
     /// <summary>
     /// An instance of the DB context
     /// </summary>
     private TodoContext todoContext = null;
-
-
     [TestInitialize]
     public void InitTestEnvironment()
     {
@@ -28,25 +25,17 @@
             //Due to requiring the TodoContext properties.
             return;
         }
-
         //Setup the TODO Db Context
-
         var optionsBuilder = new DbContextOptionsBuilder<TodoContext>();
         optionsBuilder.UseInMemoryDatabase("TodoList");
-
         this.todoContext = new TodoContext(optionsBuilder.Options);
-
         //Setup the TODO Controller
         var configuration = new ConfigurationBuilder().Build();
-
         var startup = new Startup(configuration);
         var sc = new ServiceCollection();
-
         startup.ConfigureServices(sc);
         var serviceProvider = sc.BuildServiceProvider();
-
         this.todoController = new TodoController(this.todoContext, serviceProvider, configuration);
-
     }
         </code></pre>
         </td>
