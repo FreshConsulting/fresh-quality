@@ -7,7 +7,7 @@
 // The ability to how the dependency injection works allow for testing the classes
 // in a disconnect manner.
 // </summary>
-// <copyright file="ControllerTests.cs" company="Fresh Consulting LLC">2019</copyright>
+// <copyright file="ControllerTests_WithFreshQuality.cs" company="Fresh Consulting LLC">2019</copyright>
 
 namespace ExampleTests
 {
@@ -29,7 +29,7 @@ namespace ExampleTests
     /// FreshQuality's TestBase for IOC.
     /// </summary>
     [TestClass]
-    public class ControllerTests : TestBase<ControllerBase, ControllerTests>
+    public class ControllerTests_WithFreshQuality : TestBase<ControllerBase, ControllerTests_WithFreshQuality>
     {
         /// <summary>
         /// Tests the Get method of TestBase is working
@@ -107,6 +107,30 @@ namespace ExampleTests
 
             Assert.IsNotNull(item);
             Assert.AreEqual(last.Id, item.Value.Id);
+        }
+
+        /// <summary>
+        /// Tests the overriding mechanism for the Get method
+        /// </summary>
+        /// <returns>nothing to return</returns>
+        [TestMethod]
+        public async Task OverrideIOCContextResultsInChanges()
+        {
+            // Setup the TODO Db Context
+            var optionsBuilder = new DbContextOptionsBuilder<TodoContext>();
+            optionsBuilder.UseInMemoryDatabase("TodoList");
+
+            var filledList = new TodoContext(optionsBuilder.Options);
+            
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = true, Name = "Make an override" });
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = false, Name = "Test the override" });
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = false, Name = "Document override" }) ;
+            filledList.Add<TodoItem>(new TodoItem() { IsComplete = true, Name = "Make test project" });
+            filledList.Add<TodoItem>(new TodoItem() {  IsComplete = true, Name = "Run test project" });
+            filledList.SaveChanges();
+            var ctrllr = Get<TodoController>(filledList);
+            int itemCount = (await ctrllr.GetTodoItems()).Value.ToList().Count;
+            Assert.AreEqual(filledList.TodoItems.Count(), itemCount);
         }
 
         /// <summary>

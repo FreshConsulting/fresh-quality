@@ -70,11 +70,12 @@ namespace FreshQuality
         /// This method allows for easy retrieval of "T".
         /// </summary>
         /// <typeparam name="S">Desired type</typeparam>
+        /// <param name="serviceOverrides">overrides to IOC</param>
         /// <returns>An instance of the desired type</returns>
-        public S Get<S>()
+        public S Get<S>(params object[] serviceOverrides)
             where S : T
         {
-            return this.facillitator.Get<S>();
+            return this.facillitator.Get<S>(serviceOverrides);
         }
 
         /// <summary>

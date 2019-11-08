@@ -106,7 +106,7 @@ namespace FreshQuality
         /// </summary>
         /// <typeparam name="S">The subtype to get</typeparam>
         /// <returns>Instance of type S.</returns>
-        public S Get<S>()
+        public S Get<S>(params object[] serviceOverrides)
             where S : T
         {
             string name = typeof(S).FullName;
@@ -120,14 +120,14 @@ namespace FreshQuality
 
             if (!candidates.Any())
             {
-                return default;
+                return default(S);
             }
 
             if (candidates.Count == 1)
             {
                 // Happy path: no ambiguity
                 var type = candidates.First();
-                return this.InstantiateType<S>(type);
+                return this.InstantiateType<S>(type, serviceOverrides);
             }
             else
             {
@@ -136,7 +136,7 @@ namespace FreshQuality
                     .OrderBy(c => c.FullName.Replace(name, string.Empty))
                     .First();
 
-                return this.InstantiateType<S>(type);
+                return this.InstantiateType<S>(type, serviceOverrides);
             }
         }
 
@@ -200,35 +200,22 @@ namespace FreshQuality
         /// </summary>
         /// <typeparam name="S">Type instance</typeparam>
         /// <param name="type">type to instantiate</param>
+        /// <param name="serviceOverrides">optional overrides to instances</param>
         /// <returns>An instance of type S</returns>
-        private S InstantiateType<S>(Type type)
+        private S InstantiateType<S>(Type type, params object[] serviceOverrides)
             where S : T
         {
-            // We could go crazier in this code
-            // but it would make it harder to understand
-            // so I opted out of this. But it would be something like:
-//            return (S)type.GetConstructors()
-//                .OrderBy(c => c.GetParameters().Length)
-//                .Select(ctor =>
-//                    ctor.Invoke(
-//                        ctor.GetParameters().Select(parameter =>
-//                            ServiceProvider.GetService(
-//                                parameter.ParameterType)
-//                            ?? throw new MissingServiceException(parameter.ParameterType.FullName))
-//                            .ToArray()))
-//                .FirstOrDefault();
-
             var availableConstructors = type.GetConstructors()
                 .OrderBy(c => c.GetParameters().Length).ToList();
+
+            var serviceOverridesDict = serviceOverrides.ToDictionary(k => k.GetType());
 
             // We'll go w/ the first one we can instantiate, if possible.
             foreach (var ctor in availableConstructors)
             {
                 // This is more a suggestion, the foreach was good too.
                 var parameters = ctor.GetParameters()
-                    .Select(parameter =>
-                        ServiceProvider.GetService(parameter.ParameterType)
-                        ?? throw new MissingServiceException(parameter.ParameterType.FullName))
+                    .Select(parameter => this.GetService(parameter.ParameterType, serviceOverridesDict))
                     .ToArray();
 
                 return (S)ctor.Invoke(parameters);
@@ -239,6 +226,29 @@ namespace FreshQuality
                 type.FullName,
                 new MissingFieldException(
                     "Unable to initialize the type, because some of the dependencies were not setup."));
+        }
+
+        /// <summary>
+        /// Gets an instance of a particular type, either using the <paramref name="serviceOverrides"/>
+        /// or dependency.
+        /// </summary>
+        /// <param name="typeToGet">Type to retrieve an instance of</param>
+        /// <param name="serviceOverrides">Optional overrides to IOC</param>
+        /// <returns>instance of <paramref name="typeToGet"/></returns>
+        private object GetService(Type typeToGet, Dictionary<Type, object> serviceOverrides)
+        {
+            if (!serviceOverrides.TryGetValue(typeToGet, out object instance))
+            {
+                // if an override doesn't exist, let's get the service via IOC
+                instance = ServiceProvider.GetService(typeToGet);
+            }
+
+            if (instance == null)
+            {
+                throw new MissingServiceException(typeToGet.FullName);
+            }
+
+            return instance;
         }
 
         /// <summary>
